@@ -21,7 +21,7 @@ function init() {
   // 📹 Camera 생성
   const camera = new THREE.PerspectiveCamera(
     75, // 시야각(fov, field of view)
-    window.innerWidth / window.innerHeight, // 카메라 종횡비
+    window.innerWidth / window.innerHeight, // 카메라 종횡비(aspect)
     1, // near
     500 // far
   );
@@ -42,7 +42,6 @@ function init() {
     // wireframe: true, // Material 골격 확인
     // side: THREE.BackSide, // 보여지는 기준면
   });
-
   material.color = new THREE.Color(0x00c896); // material 생성 후에 컬러 부여하는 방식도 가능
 
   // > Mesh 오브젝트 생성✨ (Mesh클래스에 Geometry, Material 전달해서 찍어낸 인스턴스)
@@ -67,4 +66,20 @@ function init() {
   scene.add(ambientLight);
 
   renderer.render(scene, camera); // camera에 설정한 범위 내의 오브젝트들을 scene에 render
+
+  // 🕹️ 렌더러 사이즈 resize 이벤트 핸들러
+  function handleResize() {
+    // 📹📦📐도형은 도형기준으로 변경되게끔 카메라 aspect(종횡비) 변경
+    camera.aspect = window.innerWidth / window.innerHeight;
+    // > 📢📹📦📐 카메라 종횡비(aspect) 변경은 꼭 업데이트 해줘야 반영됨
+    camera.updateProjectionMatrix();
+
+    // 🖥️📐 렌더러 resize 이벤트
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    // 🖥️ 렌더러의 렌더 메서드로 위 사항들 반경하여 다시 렌더되게 호출
+    renderer.render(scene, camera);
+  }
+  // 👂🏻 resize 이벤트 리스너
+  window.addEventListener("resize", handleResize);
 }
