@@ -65,7 +65,25 @@ function init() {
   // 보조 조명 Scene에 추가
   scene.add(ambientLight);
 
-  renderer.render(scene, camera); // camera에 설정한 범위 내의 오브젝트들을 scene에 render
+  // 🤹🏻 애니메이션 효과를 포함한 렌더링 함수
+  function render() {
+    // cube.rotation.x = THREE.MathUtils.degToRad(45); // 각도 설정 시 degree를 radian으로 변환해서 넣어줘야 함! → 3js에 내장된 MathUtils 클래스의 degToRad() 메서드를 이용하면 편하다!
+    // cube.rotation.x += 0.01; // 회전: 매 프레임마다 0.01 라디안씩 회전! → 1프레임은 30~60fps로 기기에 따라 다름 ∴ 기계에 따른 오차 범위 큼
+    // cube.position.y = Math.sin(cube.rotation.x); // 수직: 1 ~ -1 사이로 왔다갔다 (sin 함수는 항상 1 ~ -1 사이값이니까)
+    // cube.scale.x = Math.cos(cube.rotation.x); // 크기: 좌우방향으로 1 ~ -1 사이로 줄었다늘었다 (cos 함수도 항상 1 ~ -1 사이값이니까)
+    // cube.rotation.x += Date.now() / 1000; // 회전: 매 프레임마다 0.01 라디안씩 회전!
+    // cube.rotation.x = clock.getElapsedTime(); // Clock 인스턴스가 생성된 시점으로부터 경과한 시간을 초단위로 반환
+    cube.rotation.x += clock.getDelta(); // getDelta가 호출된 뒤 다음 호출까지의 사이 시간을 반환 ∴ 회전할 값을 계속 더해줘야 함
+
+    renderer.render(scene, camera); // camera에 설정한 범위 내의 오브젝트들을 scene에 render
+    requestAnimationFrame(render); // requestAnimationFrame 함수의 파라미터에는 그 다음 차례에 호출할 콜백함수가 들어옴. ∴ 재귀적으로 render함수를 호출
+    // 매 프레임마다 콜백함수 호출하는 api
+  }
+
+  const clock = new THREE.Clock();
+
+  // > 렌더 함수 호출
+  render();
 
   // 🕹️ 렌더러 사이즈 resize 이벤트 핸들러
   function handleResize() {
