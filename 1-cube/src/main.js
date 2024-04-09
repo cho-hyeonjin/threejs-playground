@@ -28,42 +28,61 @@ function init() {
 
   //📦 Mesh 오브젝트 생성
   // > 3개의 좌표로 지오메트리 (3D 오브젝트 형체) 생성
-  const geometry = new THREE.BoxGeometry(2, 2, 2);
+  const cubeGeometry = new THREE.IcosahedronGeometry(1); // 20면체 지오메트리
   // > 3js에서 제공하는 내장 Mesh 클래스로 3D 오브젝트의 질감 (Material) 생성
   // const material = new THREE.MeshBasicMaterial({ color: 0xcc99ff }); // lights의 영향을 받지 않는 geometry라 light로 음영표현이 안됨
-  const material = new THREE.MeshStandardMaterial({
+  // const material = new THREE.MeshStandardMaterial({
+  const cubeMaterial = new THREE.MeshLambertMaterial({
+    //
+    color: 0x00ffff,
+    emissive: 0x111111, // Material이 자체적으로 내뿜는 색 표현 속성
     // color: 0xffa500 // 16진수 넘버타입 hex 코드
     // color: '#ffa500' // 16진수 문자열타입 hex 코드
     // color: 'orange' // 컬러명
-    color: new THREE.Color(0xffa500), // 3js에 내장된 Color 클래스 인스턴스
+    // color: new THREE.Color(0xffa500), // 3js에 내장된 Color 클래스 인스턴스
     // transparent: true, // 투명도 설정
     // opacity: 0.5, // 투명도 정도 설정
     // visible: false, // 안 보이게
     // wireframe: true, // Material 골격 확인
     // side: THREE.BackSide, // 보여지는 기준면
   });
-  material.color = new THREE.Color(0x00c896); // material 생성 후에 컬러 부여하는 방식도 가능
-
+  // material.color = new THREE.Color(0xcc99ff); // material 생성 후에 컬러 부여하는 방식도 가능
   // > Mesh 오브젝트 생성✨ (Mesh클래스에 Geometry, Material 전달해서 찍어낸 인스턴스)
-  const cube = new THREE.Mesh(geometry, material);
-  // Mesh 오브젝트 Scene에 추가
+  const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+  // > Mesh 오브젝트 Scene에 추가
   scene.add(cube);
 
+  // 📦 또 다른 Mesh 오브젝트 생성
+  const skeletonGeometry = new THREE.IcosahedronGeometry(2);
+  const skeletonMaterial = new THREE.MeshBasicMaterial({
+    wireframe: true,
+    transparent: true,
+    opacity: 0.2,
+    color: 0xaaaaaa,
+  });
+  // > Geometry와 Material로 부피와 질감을 가진 Mesh 오브젝트 생성
+  const skeleton = new THREE.Mesh(skeletonGeometry, skeletonMaterial);
+  // > 오브젝트 scene에 추가
+  scene.add(skeleton);
+  // scene.add(cube, skeleton); // 이렇게 한번에 추가도 가능
+
   // 📹 카메라 포지션 세팅
-  // camera.position.z = 5; // 벡터 좌표 하나하나 설정하는 방식
-  camera.position.set(3, 4, 5); // 벡터 좌표 한번에 설정하는 방식 (set메서드)
-  camera.lookAt(cube.position); // 카메라가 항상 오브젝트를 바라보도록 설정하는 메서드
+  camera.position.z = 5; // 벡터 좌표 하나하나 설정하는 방식
+  // camera.position.set(3, 4, 5); // 벡터 좌표 한번에 설정하는 방식 (set메서드)
+  // camera.lookAt(cube.position); // 카메라가 항상 오브젝트를 바라보도록 설정하는 메서드
 
   // 🔦 주조명 생성
-  const directionalLight = new THREE.DirectionalLight(0xf0f0f0, 1);
-  // 주조명 세팅
-  directionalLight.position.set(-1, 2, 3);
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+  // 주조명 포지션 세팅
+  // directionalLight.position.set(-1, 2, 3);
   // 주조명 Scene에 추가
   scene.add(directionalLight);
-  // 🔦 보조 조명 생성
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
-  // 보조 조명 Scene에 추가
-  scene.add(ambientLight);
+  // // 🔦 보조 조명 생성
+  // const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
+  // // 보조 조명 Scene에 추가
+  // scene.add(ambientLight);
+
+  const clock = new THREE.Clock();
 
   // 🤹🏻 애니메이션 효과를 포함한 렌더링 함수
   function render() {
@@ -73,14 +92,18 @@ function init() {
     // cube.scale.x = Math.cos(cube.rotation.x); // 크기: 좌우방향으로 1 ~ -1 사이로 줄었다늘었다 (cos 함수도 항상 1 ~ -1 사이값이니까)
     // cube.rotation.x += Date.now() / 1000; // 회전: 매 프레임마다 0.01 라디안씩 회전!
     // cube.rotation.x = clock.getElapsedTime(); // Clock 인스턴스가 생성된 시점으로부터 경과한 시간을 초단위로 반환
-    cube.rotation.x += clock.getDelta(); // getDelta가 호출된 뒤 다음 호출까지의 사이 시간을 반환 ∴ 회전할 값을 계속 더해줘야 함
+    const elapsedTime = clock.getElapsedTime();
+
+    cube.rotation.x = elapsedTime; // getDelta가 호출된 뒤 다음 호출까지의 사이 시간을 반환 ∴ 회전할 값을 계속 더해줘야 함
+    cube.rotation.y = elapsedTime; // y축 방향으로도 움직이도록 설정
+
+    skeleton.rotation.x = elapsedTime * 1.5;
+    skeleton.rotation.y = elapsedTime * 1.5;
 
     renderer.render(scene, camera); // camera에 설정한 범위 내의 오브젝트들을 scene에 render
     requestAnimationFrame(render); // requestAnimationFrame 함수의 파라미터에는 그 다음 차례에 호출할 콜백함수가 들어옴. ∴ 재귀적으로 render함수를 호출
     // 매 프레임마다 콜백함수 호출하는 api
   }
-
-  const clock = new THREE.Clock();
 
   // > 렌더 함수 호출
   render();
