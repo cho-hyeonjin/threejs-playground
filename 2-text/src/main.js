@@ -1,14 +1,16 @@
 import * as THREE from "three";
-// import typeface from 'three/examples/fonts/...' // 매우 많은 타입이 내장되어 있지만 한글은 지원하지 X → typeface generator를 이용하여 typeface json 파일 생성해서 사용할 수 있음!
-// three.js 빌트인 클래스 FontLoader 사용
 import { FontLoader } from "three/examples/jsm/loaders/FontLoader.js";
-import typeface from "./assets/fonts/Hakgyoansim Jiugae R_Regular.json";
+import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry.js";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import GUI from "lil-gui";
 
 window.addEventListener("load", function () {
   init();
 });
 
 function init() {
+  const gui = new GUI();
+
   const renderer = new THREE.WebGLRenderer({
     antialias: true,
   });
@@ -28,23 +30,45 @@ function init() {
 
   camera.position.z = 5;
 
+  /** Controls */
+  new OrbitControls(camera, renderer.domElement);
+
   /** Font */
   const fontLoader = new FontLoader();
 
   fontLoader.load(
     "./assets/fonts/Hakgyoansim Jiugae R_Regular.json",
     (font) => {
-      console.log("load", font);
-    },
-    (event) => {
-      console.log("progress", event);
-    },
-    (error) => {
-      console.log("error", error);
+      /** Text */
+      const textGeometry = new TextGeometry("니가 웃으면 나도 좋아", {
+        font,
+        size: 0.5,
+        height: 0.1,
+      });
+
+      const textMaterial = new THREE.MeshPhongMaterial({ color: 0xfb6f92 });
+
+      const text = new THREE.Mesh(textGeometry, textMaterial);
+
+      scene.add(text);
     }
   );
 
-  const font = fontLoader.parse(typeface);
+  /** AmbientLight */
+  const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+
+  scene.add(ambientLight);
+
+  /** PointLight */
+  const pointLight = new THREE.PointLight(0xffffff, 0.5);
+
+  const pointLightHelper = new THREE.PointLightHelper(pointLight, 0.5);
+
+  pointLight.position.set(3, 0, 2);
+
+  scene.add(pointLight, pointLightHelper);
+
+  gui.add(pointLight.position, "x").min(-3).max(3).step(0.1);
 
   render();
 
