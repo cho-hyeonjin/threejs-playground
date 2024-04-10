@@ -37,11 +37,9 @@ async function init() {
   const fontLoader = new FontLoader();
 
   // text를 콜백함수 밖에서도 접근할 수 있도록 하기 위해 load 대신 loadAsync 를 이용한 리팩토링
-
   const font = await fontLoader.loadAsync(
     "./assets/fonts/Hakgyoansim Jiugae R_Regular.json"
   );
-
   /** Text */
   const textGeometry = new TextGeometry("니가 웃으면 나도 좋아", {
     font,
@@ -52,6 +50,19 @@ async function init() {
   const textMaterial = new THREE.MeshPhongMaterial({ color: 0xfb6f92 });
 
   const text = new THREE.Mesh(textGeometry, textMaterial);
+
+  textGeometry.computeBoundingBox(); // BoundingBox 사용하려면 이렇게 호출부터 해줘야 함
+
+  // textGeometry.translate와 boundingBox를 이용항 가운데 정렬 --- 그러나 단순한 가운데 정렬을 원한다면 이보다 쉬운 방법이 있다. 바로 textGeometry.center() !
+  // textGeometry.translate(
+  //   // - 방향으로 움직인다 (boundingbox의 길이) * 반만큼
+  //   -(textGeometry.boundingBox.max.x - textGeometry.boundingBox.min.x) * 0.5,
+  //   -(textGeometry.boundingBox.max.y - textGeometry.boundingBox.min.y) * 0.5,
+  //   -(textGeometry.boundingBox.max.z - textGeometry.boundingBox.min.z) * 0.5,
+  //   0,
+  //   0
+  // );
+  textGeometry.center();
 
   scene.add(text);
 
