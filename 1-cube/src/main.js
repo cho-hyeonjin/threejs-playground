@@ -28,7 +28,11 @@ function init() {
 
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.autoRotate = true;
-  const cubeGeometry = new THREE.IcosahedronGeometry(1); // 20면체 지오메트리
+  controls.enableDamping = true;
+  controls.maxAzimuthAngle = Math.PI / 2;
+  controls.minAzimuthAngle = Math.PI / 3;
+
+  const cubeGeometry = new THREE.IcosahedronGeometry(1);
   const cubeMaterial = new THREE.MeshLambertMaterial({
     //
     color: 0x00ffff,
