@@ -8,7 +8,7 @@ window.addEventListener("load", function () {
   init();
 });
 
-function init() {
+async function init() {
   const gui = new GUI();
 
   const renderer = new THREE.WebGLRenderer({
@@ -36,23 +36,24 @@ function init() {
   /** Font */
   const fontLoader = new FontLoader();
 
-  fontLoader.load(
-    "./assets/fonts/Hakgyoansim Jiugae R_Regular.json",
-    (font) => {
-      /** Text */
-      const textGeometry = new TextGeometry("니가 웃으면 나도 좋아", {
-        font,
-        size: 0.5,
-        height: 0.1,
-      });
+  // text를 콜백함수 밖에서도 접근할 수 있도록 하기 위해 load 대신 loadAsync 를 이용한 리팩토링
 
-      const textMaterial = new THREE.MeshPhongMaterial({ color: 0xfb6f92 });
-
-      const text = new THREE.Mesh(textGeometry, textMaterial);
-
-      scene.add(text);
-    }
+  const font = await fontLoader.loadAsync(
+    "./assets/fonts/Hakgyoansim Jiugae R_Regular.json"
   );
+
+  /** Text */
+  const textGeometry = new TextGeometry("니가 웃으면 나도 좋아", {
+    font,
+    size: 0.5,
+    height: 0.1,
+  });
+
+  const textMaterial = new THREE.MeshPhongMaterial({ color: 0xfb6f92 });
+
+  const text = new THREE.Mesh(textGeometry, textMaterial);
+
+  scene.add(text);
 
   /** AmbientLight */
   const ambientLight = new THREE.AmbientLight(0xffffff, 1);
