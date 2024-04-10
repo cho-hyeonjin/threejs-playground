@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 window.addEventListener("load", function () {
   init();
@@ -25,6 +26,26 @@ function init() {
     1, // near
     500 // far
   );
+
+  // 🕹️ 카메라 컨트롤
+  // Mesh 드래그 시 위치변경이 가능해지는데, 이는 Mesh가 움직이는 게 아닌 Mesh를 둘러싼 Camera의 위치가 변경되는 것이다.
+  const controls = new OrbitControls(camera, renderer.domElement);
+  // > AxesHelper를 설치해서 Mesh가 아닌 Camera의 위치 변경임을 확인할 수 있음.(물체가 돌아가는거였다면 x,y,z 축이 고정되어 있어야 하지만 확인해보면 축의 위치가 변하는 것을 학인할 수 있음)
+  // const axesHelper = new THREE.AxesHelper(5);
+  // scene.add(axesHelper);
+  // > 드래그 하지 않아도 Camera가 Mesh 주변을 자동으로 돌도록. - 기존엔 Mesh의 rotation을 이용해 Mesh를 돌리고 있었지만 이제 Mesh를 고정시키고 camera가 돌아가게 해보자.
+  controls.autoRotate = true;
+  // controls.autoRotateSpeed = 30; // 스피드~
+  // controls.enableDamping = true; // 드래그 시 바로 멈추지 않고 스무~스하게 관성 유지
+  // controls.dampingFactor = 0.01; // 관성 제어 정도 설정. 기본값은 0.05
+  // controls.enableZoom = true; // 줌인~줌아웃~ 기본값이 true라 따로 설정 안해도 됨.
+  // controls.enablePan = true; // 우클릭시 드래그 하면 좌우로~ 기본값이 true라 따로 설정 안해도 됨.
+  // controls.maxDistance = 50; // 줌은 무한으로 가능하게 설정되어있는데 min,max Distance 옵션으로 범위 제한 가능
+  // controls.minDistance = 10;
+  // controls.maxPolarAngle = Math.PI / 2; // 카메라 수직 무빙 범위 제한 옵션
+  // controls.minPolarAngle = Math.PI / 3;
+  // controls.maxAzimuthAngle = Math.PI / 2; // 카메라 수평 무빙 범위 제한 옵션
+  // controls.minAzimuthAngle = Math.PI / 3; // 카메라 수평 무빙 범위 제한 옵션
 
   //📦 Mesh 오브젝트 생성
   // > 3개의 좌표로 지오메트리 (3D 오브젝트 형체) 생성
@@ -94,13 +115,16 @@ function init() {
     // cube.rotation.x = clock.getElapsedTime(); // Clock 인스턴스가 생성된 시점으로부터 경과한 시간을 초단위로 반환
     const elapsedTime = clock.getElapsedTime();
 
-    cube.rotation.x = elapsedTime; // getDelta가 호출된 뒤 다음 호출까지의 사이 시간을 반환 ∴ 회전할 값을 계속 더해줘야 함
-    cube.rotation.y = elapsedTime; // y축 방향으로도 움직이도록 설정
+    // cube.rotation.x = elapsedTime; // getDelta가 호출된 뒤 다음 호출까지의 사이 시간을 반환 ∴ 회전할 값을 계속 더해줘야 함
+    // cube.rotation.y = elapsedTime; // y축 방향으로도 움직이도록 설정
 
-    skeleton.rotation.x = elapsedTime * 1.5;
-    skeleton.rotation.y = elapsedTime * 1.5;
+    // skeleton.rotation.x = elapsedTime * 1.5;
+    // skeleton.rotation.y = elapsedTime * 1.5;
 
     renderer.render(scene, camera); // camera에 설정한 범위 내의 오브젝트들을 scene에 render
+
+    controls.update(); // camera는 update 해줘야 변경사항이 반영된다는 거~ 따라서, render함수와 resise함수 안에서 update 해주기~~!
+
     requestAnimationFrame(render); // requestAnimationFrame 함수의 파라미터에는 그 다음 차례에 호출할 콜백함수가 들어옴. ∴ 재귀적으로 render함수를 호출
     // 매 프레임마다 콜백함수 호출하는 api
   }
@@ -120,6 +144,8 @@ function init() {
 
     // 🖥️ 렌더러의 렌더 메서드로 위 사항들 반경하여 다시 렌더되게 호출
     renderer.render(scene, camera);
+
+    controls.update();
   }
   // 👂🏻 resize 이벤트 리스너
   window.addEventListener("resize", handleResize);
