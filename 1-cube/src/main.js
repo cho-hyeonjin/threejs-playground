@@ -1,11 +1,16 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import GUI from "lil-gui";
 
 window.addEventListener("load", function () {
   init();
 });
 
 function init() {
+  const options = {
+    color: "0x00ffff",
+  };
+
   // 🖥️ 렌더러 생성 (3js에 내장된 WebGLRenderer 클래스로 찍어낸 인스턴스): renderer.domElement 안에는 (앞으로 만들어질 3D 콘텐츠가 보여질) canvas DOM 요소가 들어 있음. (https://threejs.org/docs/#api/en/renderers/WebGLRenderer.domElement)
   const renderer = new THREE.WebGLRenderer({
     // alpha: true, // 배경 검정색 아니고 투명하게 하려면 true로
@@ -149,4 +154,13 @@ function init() {
   }
   // 👂🏻 resize 이벤트 리스너
   window.addEventListener("resize", handleResize);
+
+  // 🕹️ GUI CONTROLLER ✨
+  const gui = new GUI();
+  // gui.add(cube.position, "y", -3, 3, 0.1); // 아래와 같이 가독성 높게 작성
+  gui.add(cube.position, "y").min(-3).max(3).step(0.1);
+  gui.add(cube, "visible");
+  gui.addColor(options, "color").onChange((value) => {
+    cube.material.color.set(value);
+  });
 }
