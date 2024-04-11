@@ -44,18 +44,28 @@ async function init() {
   const textGeometry = new TextGeometry("니가 웃으면 나도 좋아", {
     font,
     size: 0.5,
-    height: 0.1,
+    depth: 0.1, // TextGeometry의 height 속성은 deprecated. → depth로 사용해야 함
     bevelEnabled: true,
     bevelSegments: 5,
     bevelSize: 0.02,
     bevelThickness: 0.02,
   });
 
-  const textMaterial = new THREE.MeshPhongMaterial({ color: 0xfb6f92 });
+  const textMaterial = new THREE.MeshPhongMaterial();
 
   const text = new THREE.Mesh(textGeometry, textMaterial);
 
   textGeometry.computeBoundingBox(); // BoundingBox 사용하려면 이렇게 호출부터 해줘야 함
+
+  scene.add(text);
+
+  /** Texture */
+  const textureLoader = new THREE.TextureLoader().setPath("./assets/textures/"); // setPath로 TextureLoader의 path를 설정해두면~
+
+  // TextureLoader의 loader 메서드는 loadAsync를 쓰지 않더라도 바로 texture instance를 반환해준다!
+  const textTexture = textureLoader.load("holographic.jpeg"); // load 시 파일명만 넣어주면 load 가능!
+
+  textMaterial.map = textTexture;
 
   // textGeometry.translate와 boundingBox를 이용항 가운데 정렬 --- 그러나 단순한 가운데 정렬을 원한다면 이보다 쉬운 방법이 있다. 바로 textGeometry.center() !
   // textGeometry.translate(
@@ -67,8 +77,6 @@ async function init() {
   //   0
   // );
   textGeometry.center();
-
-  scene.add(text);
 
   /** AmbientLight */
   const ambientLight = new THREE.AmbientLight(0xffffff, 1);
