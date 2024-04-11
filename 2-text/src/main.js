@@ -15,6 +15,9 @@ async function init() {
     antialias: true,
   });
 
+  // 그림자 기능 사용하려면 먼저 shadowMap의 enabled 속성을 true로 설정해줘야 함! (그림자 기능이 있는 Light, 없는 Light가 있으니 확인하고 사용할것~!)
+  renderer.shadowMap.enabled = true;
+
   renderer.setSize(window.innerWidth, window.innerHeight);
 
   document.body.appendChild(renderer.domElement);
@@ -56,7 +59,10 @@ async function init() {
 
   const text = new THREE.Mesh(textGeometry, textMaterial);
 
-  textGeometry.computeBoundingBox(); // BoundingBox 사용하려면 이렇게 호출부터 해줘야 함
+  // 그림자는 cast, recieve 객체를 설정해줘야 함! (그림자를 드리우는 객체, 그림자를 받는 객체!)
+  text.castShadow = true; // text가 그림자 드리우는 shadow cast 객체
+
+  // textGeometry.computeBoundingBox(); // BoundingBox 사용하려면 이렇게 호출부터 해줘야 함
 
   scene.add(text);
 
@@ -78,6 +84,7 @@ async function init() {
   const plane = new THREE.Mesh(planeGeometry, planeMaterial);
 
   plane.position.z = -10;
+  plane.receiveShadow = true; // plane이 그림자 받는 shadow recieve 객체
 
   scene.add(plane);
 
@@ -95,6 +102,14 @@ async function init() {
     0.2, // 빛이 감소하는 정도
     0.5 // 거리에 따른 빛의 감소량
   );
+
+  // 그림자의 cast 객체와 recieve 객체를 설정해주었으면, Light 객체에 castShadow 값을 true로 설정하여 cast 해줘야 한다. (Shadow 기능을 지원하는 Ligth인지 확인 후 설정할 것~!)
+  spotLight.castShadow = true;
+  // 그림자를 표현할 map의 크기를 설정하여 그림자의 가장자리 노이즈를 부드럽게 바꿔준다. 2의 거듭제곱값으로 설정하면 됨(기본값은 512) 단! 값을 너무 높게 설정하면 그림자 해상도는 높아지겠지만 렌더링 성능이 낮아지므로 적당한 값으로 판단해서 설정하기!
+  spotLight.shadow.mapSize.width = 1024;
+  spotLight.shadow.mapSize.width = 1024;
+  // 자연스러운 그림자를 위해 가장자리에 블러 효과를 준다.
+  spotLight.shadow.radius = 10;
 
   spotLight.position.set(0, 0, 3);
   spotLight.target.position.set(0, 0, -3);
@@ -136,6 +151,13 @@ async function init() {
 
   // spotLight의 경계 - 0에 가까울수록(수치가 작을수록) 경계가 선명해지고, 수치가 클수록 경계가 희미해짐
   spotLightFolder.add(spotLight, "penumbra").min(0).max(1).step(0.01);
+
+  // 그림자 가장자리 블러 효과
+  spotLightFolder
+    .add(spotLight.shadow, "radius")
+    .min(1)
+    .max(20)
+    .step("shadow.radius");
 
   render();
 
