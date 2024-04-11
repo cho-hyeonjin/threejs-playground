@@ -2,6 +2,9 @@ import * as THREE from "three";
 import { FontLoader } from "three/examples/jsm/loaders/FontLoader.js";
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
+import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import GUI from "lil-gui";
 
 window.addEventListener("load", function () {
@@ -164,10 +167,42 @@ async function init() {
     .max(20)
     .step("shadow.radius");
 
+  /** Effect - 후처리(post processing) Composer */
+  const composer = new EffectComposer(renderer);
+  // renderPass - EffectComposer 내부적으로 렌더링된 결과물을 후처리(post processing)의 기본 장면으로 사용할 목적
+  const renderPass = new RenderPass(scene, camera);
+  // EffectComposer에 renderPass 추가
+  composer.addPass(renderPass);
+  // unrealBloomPass
+  const unrealBloomPass = new UnrealBloomPass(
+    new THREE.Vector2(window.innerWidth, window.innerHeight), // 해상도 벡터값
+    1.2, // strangth
+    1, // radius
+    0 // threshold(한계점)
+  );
+  // EffectComposer에 unrealBloomPass 추가
+  composer.addPass(unrealBloomPass);
+  const unrealBloomPassFolder = gui.addFolder("UnrealBloomPass");
+  unrealBloomPassFolder
+    .add(unrealBloomPass, "strength")
+    .min(0)
+    .max(3)
+    .step(0.01);
+
+  unrealBloomPassFolder.add(unrealBloomPass, "radius").min(0).max(1).step(0.01);
+
+  unrealBloomPassFolder
+    .add(unrealBloomPass, "threshold")
+    .min(0)
+    .max(1)
+    .step(0.01);
+
   render();
 
   function render() {
-    renderer.render(scene, camera);
+    // renderer.render(scene, camera);
+    // 이제 renderer가 직접 렌더링을 수행하는 대신 composer를 통해 렌더링을 수행할 수 있도록 아래와 같이 compser.render()로 변경
+    composer.render();
 
     requestAnimationFrame(render);
   }
