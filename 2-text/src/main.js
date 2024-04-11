@@ -22,12 +22,13 @@ async function init() {
   const scene = new THREE.Scene();
 
   const camera = new THREE.PerspectiveCamera(
-    75,
-    window.innerWidth / window.innerHeight,
-    1,
-    500
+    75, // fov (camera frustrum vetical field of view)
+    window.innerWidth / window.innerHeight, // aspect ratio
+    1, // camera frustrum near plane
+    500 // camera frustrum far plane
   );
 
+  console.log(camera);
   camera.position.z = 5;
 
   /** Controls */
@@ -67,37 +68,74 @@ async function init() {
 
   textMaterial.map = textTexture;
 
-  // textGeometry.translate와 boundingBox를 이용항 가운데 정렬 --- 그러나 단순한 가운데 정렬을 원한다면 이보다 쉬운 방법이 있다. 바로 textGeometry.center() !
-  // textGeometry.translate(
-  //   // - 방향으로 움직인다 (boundingbox의 길이) * 반만큼
-  //   -(textGeometry.boundingBox.max.x - textGeometry.boundingBox.min.x) * 0.5,
-  //   -(textGeometry.boundingBox.max.y - textGeometry.boundingBox.min.y) * 0.5,
-  //   -(textGeometry.boundingBox.max.z - textGeometry.boundingBox.min.z) * 0.5,
-  //   0,
-  //   0
-  // );
   textGeometry.center();
+
+  /** Plane - 빛을 받는 백그라운드 역할 */
+  const planeGeometry = new THREE.PlaneGeometry(2000, 2000);
+  // const planeMaterial = new THREE.MeshPhongMaterial({ color: 0xff64dc });
+  const planeMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
+
+  const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+
+  plane.position.z = -10;
+
+  scene.add(plane);
 
   /** AmbientLight */
   const ambientLight = new THREE.AmbientLight(0xffffff, 1);
 
   scene.add(ambientLight);
 
-  /** PointLight */
-  const pointLight = new THREE.PointLight(0xffffff, 0.5);
+  /** SpotLight */
+  const spotLight = new THREE.SpotLight(
+    0xdfffff, // 빛 색상
+    10, // 빛 강도
+    30, // 빛이 닿는 거리
+    Math.PI * 0.15, // 빛이 퍼지는 각도
+    0.2, // 빛이 감소하는 정도
+    0.5 // 거리에 따른 빛의 감소량
+  );
 
-  // const pointLightHelper = new THREE.PointLightHelper(pointLight, 0.5);
+  spotLight.position.set(0, 0, 3);
 
-  pointLight.position.set(3, 0, 2);
+  scene.add(spotLight);
 
-  // scene.add(pointLight, pointLightHelper);
+  const spotLightHelper = new THREE.SpotLightHelper(spotLight);
 
-  gui.add(pointLight.position, "x").min(-3).max(3).step(0.1);
+  scene.add(spotLightHelper);
+
+  // add 대신 addFolder를 사용하면 관련된 속성들을 묶어서 폴더 단위로 사용할 수 있음
+  const spotLightFolder = gui.addFolder("SpotLight");
+
+  spotLightFolder
+    .add(spotLight, "angle")
+    .min(0)
+    .max(Math.PI / 2)
+    .step(0.01);
+
+  spotLightFolder
+    .add(spotLight.position, "z")
+    .min(1)
+    .max(10)
+    .step(0.01)
+    .name("position.z");
+
+  // spotLight 출발점에서 Mesh(target)까지의 거리
+  spotLightFolder.add(spotLight, "distance").min(1).max(30).step(0.01);
+
+  // 거리에 따라 옅어지는 spotLight의 강도 (intensity) - 수치가 클수록 intense함
+  spotLightFolder.add(spotLight, "decay").min(0).max(10).step(0.01);
+
+  // spotLight의 경계 - 0에 가까울수록(수치가 작을수록) 경계가 선명해지고, 수치가 클수록 경계가 희미해짐
+  spotLightFolder.add(spotLight, "penumbra").min(0).max(1).step(0.01);
 
   render();
 
   function render() {
     renderer.render(scene, camera);
+
+    // spotLightHelper도 매 프레임마다 변경값이 반영되도록 render함수에 넣어준다
+    spotLightHelper.update();
 
     requestAnimationFrame(render);
   }
