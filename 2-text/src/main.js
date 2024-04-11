@@ -97,12 +97,20 @@ async function init() {
   );
 
   spotLight.position.set(0, 0, 3);
+  spotLight.target.position.set(0, 0, -3);
 
-  scene.add(spotLight);
+  scene.add(spotLight, spotLight.target);
 
-  const spotLightHelper = new THREE.SpotLightHelper(spotLight);
+  window.addEventListener("mousemove", (event) => {
+    const x = (event.clientX / window.innerWidth - 0.5) * 5; // 1. '0.5'를 빼 준 이유 : ()는 0~1사이이기 때문! -0.5를 해주면 커서가 화면 중앙에 가까워질 때 (0,0)에 가까워짐! (내가 알던 좌표 논리 반영 위함~)
+    const y = -(event.clientY / window.innerHeight - 0.5) * 5;
+    // 2. '* 5' 를 해준 이유 : 기본 세팅된 움직임 값이 너무 작아서 마우스 움직이는 만큼 빛이 따라오지 않아서 이것도 싱크 맞춰주기 위해서~ 1번의 값에 *5
+    // 3. y에 -를 붙인 이유 :
+    // 그런데 window의 이벤트는 수직방향으로 위로 올라가면 -, 아래로 내려가면 +이기 때문에~ 내가 알고 있는 좌표 논리에서 reverse된 느낌. Three.js는 내가 알던 좌표 논리와 동일하게 위로 올라가면 +, 아래로 내려가면 - → 내가 window에서 마우스를 아래로 움직이면 Three.js의 spotLight는 위로 움직이게 되서 헷갈리고 불편!
+    // 따라서 Three.js와 window.mousemove 이벤트의 좌표 논리를 동일하게 & 내가 알던 좌표 논리에 맞게 하기 위해
 
-  scene.add(spotLightHelper);
+    spotLight.target.position.set(x, y, -3);
+  });
 
   // add 대신 addFolder를 사용하면 관련된 속성들을 묶어서 폴더 단위로 사용할 수 있음
   const spotLightFolder = gui.addFolder("SpotLight");
@@ -133,9 +141,6 @@ async function init() {
 
   function render() {
     renderer.render(scene, camera);
-
-    // spotLightHelper도 매 프레임마다 변경값이 반영되도록 render함수에 넣어준다
-    spotLightHelper.update();
 
     requestAnimationFrame(render);
   }
