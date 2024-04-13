@@ -10,6 +10,8 @@ window.addEventListener("load", function () {
 function init() {
   const gui = new GUI();
 
+  const COLORS = ["#ff6e6e", "#fce205", "#0077ff", "#3b8132"];
+
   const renderer = new THREE.WebGLRenderer({
     antialias: true,
     alpha: true, // renderer 배경 투명하게
@@ -44,7 +46,7 @@ function init() {
     width: 10,
     height: 15.8,
     radius: 0.5,
-    color: "#0077ff",
+    color: COLORS[0],
   });
 
   card.mesh.rotation.z = Math.PI * 0.1;
@@ -67,14 +69,14 @@ function init() {
     .step(0.01)
     .name("material.metalness");
 
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+  const ambientLight = new THREE.AmbientLight(0xffffff, 2);
 
   ambientLight.position.set(-5, -5, -5);
 
   scene.add(ambientLight);
 
   // 카드 메탈 질감 표현 위한 directionalLight
-  const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.6);
+  const directionalLight1 = new THREE.DirectionalLight(0xffffff, 1);
   const directionalLight2 = directionalLight1.clone();
 
   directionalLight1.position.set(1, 1, 3);
@@ -103,4 +105,18 @@ function init() {
   }
 
   window.addEventListener("resize", handleResize);
+
+  const container = document.querySelector(".container");
+
+  COLORS.forEach((color) => {
+    const button = document.createElement("button");
+
+    button.style.background = color;
+
+    button.addEventListener("click", () => {
+      card.mesh.material.color = new THREE.Color(color);
+    });
+
+    container.appendChild(button);
+  });
 }
