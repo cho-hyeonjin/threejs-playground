@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { GUI } from "lil-gui";
 
 window.addEventListener("load", function () {
   init();
@@ -6,6 +7,8 @@ window.addEventListener("load", function () {
 
 function init() {
   const canvas = document.querySelector("#canvas");
+
+  const gui = new GUI();
 
   const renderer = new THREE.WebGLRenderer({
     antialias: true,
@@ -16,6 +19,14 @@ function init() {
   renderer.setSize(window.innerWidth, window.innerHeight);
 
   const scene = new THREE.Scene();
+
+  // 안개 표현 방법 1
+  scene.fog = new THREE.Fog(0xf0f0f0, 0.1, 500);
+  // 안개 표현 방법 2
+  // scene.fog = new THREE.FogExp2(0xf0f0f0, 0.005); // Fog보다 안개가 좀 더 현실적인 느낌으로 표현되지만, 안개의 범위를 직접 지정할 수 없어서 Fog를 더 많이 씀
+
+  gui.add(scene.fog, "near").min(0).max(100).step(0.1);
+  gui.add(scene.fog, "far").min(100).max(500).step(0.1);
 
   const camera = new THREE.PerspectiveCamera(
     75,
@@ -61,6 +72,12 @@ function init() {
   pointLight.position.set(25, 25, 25);
 
   scene.add(pointLight);
+
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 1.8);
+
+  directionalLight.position.set(-25, 25, 25);
+
+  scene.add(directionalLight);
 
   render();
 
