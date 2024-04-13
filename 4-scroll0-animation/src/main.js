@@ -5,13 +5,15 @@ window.addEventListener("load", function () {
 });
 
 function init() {
+  const canvas = document.querySelector("#canvas");
+
   const renderer = new THREE.WebGLRenderer({
     antialias: true,
+    alpha: true,
+    canvas, // 위에서 만든 canvas요소가 Three.js의 renderer로 사용됨
   });
 
   renderer.setSize(window.innerWidth, window.innerHeight);
-
-  document.body.appendChild(renderer.domElement);
 
   const scene = new THREE.Scene();
 
@@ -22,7 +24,25 @@ function init() {
     500
   );
 
-  camera.position.z = 5;
+  camera.position.set(0, 25, 150);
+
+  const waveGeometry = new THREE.PlaneGeometry(1500, 1500, 150, 150);
+  const waveMaterial = new THREE.MeshStandardMaterial({
+    // wireframe: true,
+    color: "#00FFFF",
+  });
+
+  const wave = new THREE.Mesh(waveGeometry, waveMaterial);
+
+  wave.rotation.x = -Math.PI / 2;
+
+  scene.add(wave);
+
+  const pointLight = new THREE.PointLight(0xffffff, 2000);
+
+  pointLight.position.set(25, 25, 25);
+
+  scene.add(pointLight);
 
   render();
 
