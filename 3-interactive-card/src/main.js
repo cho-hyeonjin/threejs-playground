@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import Card from "./Card";
 
 window.addEventListener("load", function () {
   init();
@@ -10,21 +11,11 @@ function init() {
     alpha: true, // renderer 배경 투명하게
   });
 
-  // renderer.setClearAlpha(0.5); // 배경 투명함 정도
-  renderer.setClearColor(0x00aaff, 0.5); // 배경색 + 배경 컬러
   renderer.setSize(window.innerWidth, window.innerHeight);
 
   document.body.appendChild(renderer.domElement);
 
   const scene = new THREE.Scene();
-
-  const textureLoader = new THREE.TextureLoader();
-
-  const texture = textureLoader.load(
-    "https://images.unsplash.com/photo-1528818955841-a7f1425131b5?q=80&w=3264&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-  );
-
-  scene.background = texture;
 
   const camera = new THREE.PerspectiveCamera(
     75,
@@ -33,7 +24,21 @@ function init() {
     500
   );
 
-  camera.position.z = 5;
+  camera.position.z = 25;
+
+  const card = new Card({
+    width: 10,
+    height: 15.8,
+    color: "#fda4ba",
+  });
+
+  scene.add(card.mesh);
+
+  const ambientLight = new THREE.AmbientLight(0xffffff, 4);
+
+  ambientLight.position.set(-5, -5, -5);
+
+  scene.add(ambientLight);
 
   render();
 
