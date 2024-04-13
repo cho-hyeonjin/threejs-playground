@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import Card from "./Card";
 
 window.addEventListener("load", function () {
@@ -25,6 +26,8 @@ function init() {
   );
 
   camera.position.z = 25;
+
+  const controls = new OrbitControls(camera, renderer.domElement);
 
   const card = new Card({
     width: 10,
