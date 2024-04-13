@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { gsap } from "gsap";
 import { GUI } from "lil-gui";
 import Card from "./Card";
 
@@ -52,6 +53,12 @@ function init() {
   card.mesh.rotation.z = Math.PI * 0.1;
 
   scene.add(card.mesh);
+
+  gsap.to(card.mesh.rotation, {
+    y: -Math.PI * 4,
+    duration: 2.5,
+    ease: "back.out(2.5)",
+  }); // 호와 관련된 대부분의 단위는 호도법으로 계산한다. 참고로 1바퀴는 호도법으로 2π
 
   const cardFolder = gui.addFolder("Card");
 
@@ -115,6 +122,11 @@ function init() {
 
     button.addEventListener("click", () => {
       card.mesh.material.color = new THREE.Color(color);
+      gsap.to(card.mesh.rotation, {
+        y: card.mesh.rotation.y - Math.PI / 2,
+        duration: 1,
+        ease: "back.out(2.5)",
+      });
     });
 
     container.appendChild(button);
