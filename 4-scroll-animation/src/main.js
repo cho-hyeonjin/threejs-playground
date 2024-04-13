@@ -17,6 +17,8 @@ async function init() {
     canvas, // 위에서 만든 canvas요소가 Three.js의 renderer로 사용됨
   });
 
+  renderer.shadowMap.enabled = true;
+
   renderer.setSize(window.innerWidth, window.innerHeight);
 
   const scene = new THREE.Scene();
@@ -47,6 +49,7 @@ async function init() {
   const wave = new THREE.Mesh(waveGeometry, waveMaterial);
 
   wave.rotation.x = -Math.PI / 2;
+  wave.receiveShadow = true;
 
   const waveHeight = 2.5;
   const initialZPositions = [];
@@ -85,7 +88,17 @@ async function init() {
 
   const gltf = await gltfLoader.loadAsync("./models/ship/scene.gltf");
 
+  // 3D모델들은 gltf.scene 안에 포함되어 있는 값들이기 때문에 gltf.scene 안에 포함된 객체들을 탐색하면서 그 객체들에 castShadow를 true로 만들어줘야 함.
   const ship = gltf.scene;
+
+  // gltf.scene 내부의 객체들을 순회하면서 그 중 Mesh 객체인 경우에만 castShadow를 true로 만드는 작업.
+  ship.traverse((object) => {
+    if (object.isMesh) {
+      object.castShadow = true;
+    }
+  });
+
+  ship.castShadow = true;
 
   ship.update = function () {
     const elapsedTime = clock.getElapsedTime();
@@ -101,11 +114,21 @@ async function init() {
 
   const pointLight = new THREE.PointLight(0xffffff, 2000);
 
+  pointLight.castShadow = true;
+  pointLight.shadow.mapSize.width = 1024;
+  pointLight.shadow.mapSize.height = 1024;
+  pointLight.shadow.radius = 10;
+
   pointLight.position.set(25, 25, 25);
 
   scene.add(pointLight);
 
   const directionalLight = new THREE.DirectionalLight(0xffffff, 1.8);
+
+  directionalLight.castShadow = true;
+  directionalLight.shadow.mapSize.width = 1024;
+  directionalLight.shadow.mapSize.height = 1024;
+  directionalLight.shadow.radius = 10;
 
   directionalLight.position.set(-25, 25, 25);
 
