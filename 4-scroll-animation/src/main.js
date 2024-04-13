@@ -1,5 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { GUI } from "lil-gui";
 
 window.addEventListener("load", function () {
@@ -7,9 +9,15 @@ window.addEventListener("load", function () {
 });
 
 async function init() {
-  const canvas = document.querySelector("#canvas");
+  gsap.registerPlugin(ScrollTrigger);
+
+  const params = {
+    waveColor: "#00ffff",
+  };
 
   const gui = new GUI();
+
+  const canvas = document.querySelector("#canvas");
 
   const renderer = new THREE.WebGLRenderer({
     antialias: true,
@@ -43,7 +51,8 @@ async function init() {
   const waveGeometry = new THREE.PlaneGeometry(1500, 1500, 150, 150);
   const waveMaterial = new THREE.MeshStandardMaterial({
     // wireframe: true,
-    color: "#00FFFF",
+    // color: "#00FFFF",
+    color: params.waveColor,
   });
 
   const wave = new THREE.Mesh(waveGeometry, waveMaterial);
@@ -91,14 +100,14 @@ async function init() {
   // 3D모델들은 gltf.scene 안에 포함되어 있는 값들이기 때문에 gltf.scene 안에 포함된 객체들을 탐색하면서 그 객체들에 castShadow를 true로 만들어줘야 함.
   const ship = gltf.scene;
 
+  ship.castShadow = true;
+
   // gltf.scene 내부의 객체들을 순회하면서 그 중 Mesh 객체인 경우에만 castShadow를 true로 만드는 작업.
   ship.traverse((object) => {
     if (object.isMesh) {
       object.castShadow = true;
     }
   });
-
-  ship.castShadow = true;
 
   ship.update = function () {
     const elapsedTime = clock.getElapsedTime();
@@ -161,4 +170,16 @@ async function init() {
   }
 
   window.addEventListener("resize", handleResize);
+
+  // 이렇게 하면 waveMaterial 색이 변하지 않고 검정색으로 바뀌어버림. 왜?
+  gsap.to(waveMaterial, {
+    color: "#4268ff", // Three.js에서 Material의 color값은 이렇게 문자열 HEX코드로 직접 할당하는게 불가능! → THREE.Color 클래스의 인스턴스로 변환해서 할당해줘야 함.
+  });
+
+  gsap.to(params, {
+    waveColor: "#4258ff",
+    onUpdate: () => {
+      waveMaterial.color = new THREE.Color(params.waveColor);
+    },
+  });
 }
