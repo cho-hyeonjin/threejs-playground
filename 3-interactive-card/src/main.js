@@ -32,12 +32,22 @@ function init() {
 
   const controls = new OrbitControls(camera, renderer.domElement);
 
+  controls.autoRotate = true;
+  controls.autoRotateSpeed = 2.5;
+  controls.rotateSpeed = 0.75;
+  controls.enableDamping = true;
+  controls.enableZoom = false;
+  controls.minPolarAngle = Math.PI / 2 - Math.PI / 3;
+  controls.maxPolarAngle = Math.PI / 2 + Math.PI / 3;
+
   const card = new Card({
     width: 10,
     height: 15.8,
     radius: 0.5,
     color: "#0077ff",
   });
+
+  card.mesh.rotation.z = Math.PI * 0.1;
 
   scene.add(card.mesh);
 
@@ -75,6 +85,8 @@ function init() {
   render();
 
   function render() {
+    controls.update();
+
     renderer.render(scene, camera);
 
     requestAnimationFrame(render);
