@@ -34,7 +34,25 @@ function init() {
 
   const wave = new THREE.Mesh(waveGeometry, waveMaterial);
 
+  const waveHeight = 2.5;
+
   wave.rotation.x = -Math.PI / 2;
+
+  // waveGeometry.attributes.position.array의 요소들은 3개씩 한 좌표라 생각하면 됨. 예를들면 x=[0], y=[1], z=[2]
+  // 방법1. z좌표 값을 직접 변경하는 방식 - position.array의 length만큼 순회하며 z좌표 찾아서 설정
+  // for (let i = 0; i < waveGeometry.attributes.position.array.length; i += 3) {
+  //   // z좌표 += Math.random()은 0 ~ 1 사이의 값이니까 - 0.5 하면? - 0.5 ~ 0.5 사이의 값 * 파도 높이값
+  //   waveGeometry.attributes.position.array[i + 2] +=
+  //     (Math.random() - 0.5) * waveHeight;
+  // }
+  // 방법2. position에 setZ 메서드 사용하기 - position의 개수만큼 순회
+  for (let i = 0; i < waveGeometry.attributes.position.count; i++) {
+    const z =
+      waveGeometry.attributes.position.getZ(i) +
+      (Math.random() - 0.5) * waveHeight;
+
+    waveGeometry.attributes.position.setZ(i, z);
+  }
 
   scene.add(wave);
 
