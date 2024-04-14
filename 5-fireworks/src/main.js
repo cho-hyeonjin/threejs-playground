@@ -32,20 +32,27 @@ function init() {
   const count = 1000;
 
   const positions = new Float32Array(count * 3);
+  const colors = new Float32Array(count * 3);
 
   for (let i = 0; i < count; i++) {
     positions[i * 3] = THREE.MathUtils.randFloatSpread(10);
     positions[i * 3 + 1] = THREE.MathUtils.randFloatSpread(10);
     positions[i * 3 + 2] = THREE.MathUtils.randFloatSpread(10);
+
+    colors[i * 3] = Math.random();
+    colors[i * 3 + 1] = Math.random();
+    colors[i * 3 + 2] = Math.random();
   }
 
   geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+  geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
 
   const material = new THREE.PointsMaterial({
     color: 0xccaaff,
     // wireframe: true,
-    size: 1,
+    size: 0.1,
     // sizeAttenuation: false,
+    vertexColors: true,
   });
 
   const textureLoader = new THREE.TextureLoader();
