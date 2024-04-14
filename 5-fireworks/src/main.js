@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import FireWork from "./Firework";
 
 window.addEventListener("load", function () {
   init();
@@ -27,45 +28,9 @@ function init() {
 
   new OrbitControls(camera, renderer.domElement);
 
-  const geometry = new THREE.BufferGeometry();
+  const firework = new FireWork({ x: 0, y: 0 });
 
-  const count = 1000;
-
-  const positions = new Float32Array(count * 3);
-  const colors = new Float32Array(count * 3);
-
-  for (let i = 0; i < count; i++) {
-    positions[i * 3] = THREE.MathUtils.randFloatSpread(10);
-    positions[i * 3 + 1] = THREE.MathUtils.randFloatSpread(10);
-    positions[i * 3 + 2] = THREE.MathUtils.randFloatSpread(10);
-
-    colors[i * 3] = Math.random();
-    colors[i * 3 + 1] = Math.random();
-    colors[i * 3 + 2] = Math.random();
-  }
-
-  geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-  geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
-
-  const material = new THREE.PointsMaterial({
-    color: 0xccaaff,
-    // wireframe: true,
-    size: 0.1,
-    // sizeAttenuation: false,
-    vertexColors: true,
-  });
-
-  const textureLoader = new THREE.TextureLoader();
-
-  const texture = textureLoader.load("./assets/textures/particle.png");
-
-  material.alphaMap = texture;
-  material.transparent = true;
-  material.depthWrite = false;
-
-  const points = new THREE.Points(geometry, material);
-
-  scene.add(points);
+  scene.add(firework.points);
 
   render();
 
