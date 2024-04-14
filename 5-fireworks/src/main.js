@@ -27,12 +27,25 @@ function init() {
 
   new OrbitControls(camera, renderer.domElement);
 
-  const geometry = new THREE.SphereGeometry();
+  const geometry = new THREE.BufferGeometry();
+
+  const count = 10000;
+
+  const positions = new Float32Array(count * 3);
+
+  for (let i = 0; i < count; i++) {
+    positions[i * 3] = THREE.MathUtils.randFloatSpread(10);
+    positions[i * 3 + 1] = THREE.MathUtils.randFloatSpread(10);
+    positions[i * 3 + 2] = THREE.MathUtils.randFloatSpread(10);
+  }
+
+  geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+
   const material = new THREE.PointsMaterial({
     color: 0xccaaff,
     // wireframe: true,
     size: 0.01,
-    sizeAttenuation: false,
+    // sizeAttenuation: false,
   });
 
   const points = new THREE.Points(geometry, material);
