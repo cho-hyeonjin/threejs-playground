@@ -1,5 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { GUI } from "lil-gui";
 
 window.addEventListener("load", function () {
@@ -7,9 +9,19 @@ window.addEventListener("load", function () {
 });
 
 async function init() {
-  const canvas = document.querySelector("#canvas");
+  gsap.registerPlugin(ScrollTrigger);
+
+  const params = {
+    waveColor: "#00ffff",
+    backgroundColor: "#ffffff",
+    fogColor: "#f0f0f0",
+  };
 
   const gui = new GUI();
+
+  gui.hide();
+
+  const canvas = document.querySelector("#canvas");
 
   const renderer = new THREE.WebGLRenderer({
     antialias: true,
@@ -43,7 +55,8 @@ async function init() {
   const waveGeometry = new THREE.PlaneGeometry(1500, 1500, 150, 150);
   const waveMaterial = new THREE.MeshStandardMaterial({
     // wireframe: true,
-    color: "#00FFFF",
+    // color: "#00FFFF",
+    color: params.waveColor,
   });
 
   const wave = new THREE.Mesh(waveGeometry, waveMaterial);
@@ -91,14 +104,14 @@ async function init() {
   // 3D모델들은 gltf.scene 안에 포함되어 있는 값들이기 때문에 gltf.scene 안에 포함된 객체들을 탐색하면서 그 객체들에 castShadow를 true로 만들어줘야 함.
   const ship = gltf.scene;
 
+  ship.castShadow = true;
+
   // gltf.scene 내부의 객체들을 순회하면서 그 중 Mesh 객체인 경우에만 castShadow를 true로 만드는 작업.
   ship.traverse((object) => {
     if (object.isMesh) {
       object.castShadow = true;
     }
   });
-
-  ship.castShadow = true;
 
   ship.update = function () {
     const elapsedTime = clock.getElapsedTime();
@@ -161,4 +174,80 @@ async function init() {
   }
 
   window.addEventListener("resize", handleResize);
+
+  /** 시간차를 두고 변경되게 하고 싶다면? → gsap.timeline */
+  const tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: ".wrapper",
+      start: "top top",
+      end: "bottom bottom",
+      // markers: true,
+      scrub: true,
+    },
+  });
+
+  tl
+    //
+    .to(params, {
+      waveColor: "#4258ff",
+      onUpdate: () => {
+        waveMaterial.color = new THREE.Color(params.waveColor);
+      },
+      duration: 1.5,
+    })
+    .to(
+      params,
+      {
+        backgroundColor: "#2a2a2a",
+        onUpdate: () => {
+          scene.background = new THREE.Color(params.backgroundColor);
+        },
+        duration: 1.5,
+      },
+      "<"
+    )
+    .to(
+      params,
+      {
+        fogColor: "#2f2f2f",
+        onUpdate: () => {
+          scene.fog.color = new THREE.Color(params.fogColor);
+        },
+        duration: 2.5,
+      },
+      "<"
+    )
+    // 🎥 카메라 무빙~
+    .to(camera.position, {
+      x: 100,
+      z: -50,
+      duration: 2,
+    })
+    // 🚢 3D Mesh zPosition 이동~
+    .to(ship.position, {
+      z: 150,
+    })
+    //
+    .to(camera.position, {
+      x: -50,
+      y: 25,
+      z: 100,
+      duration: 2,
+    }) //
+    .to(camera.position, {
+      x: 0,
+      y: 50,
+      z: 300,
+      duration: 2,
+    });
+
+  gsap.to(".title", {
+    opacity: 0,
+    scrollTrigger: {
+      trigger: ".wrapper",
+      scrub: true,
+      pin: true,
+      end: "+=1000", // 애니메니션이 트리거된 시점부터 1000px
+    },
+  });
 }
