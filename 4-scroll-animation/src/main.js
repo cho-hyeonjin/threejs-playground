@@ -180,17 +180,21 @@ async function init() {
     scrollTrigger: {
       trigger: ".wrapper",
       start: "top top",
-      markers: true,
+      end: "bottom bottom",
+      // markers: true,
       scrub: true,
     },
   });
 
-  tl.to(params, {
-    waveColor: "#4258ff",
-    onUpdate: () => {
-      waveMaterial.color = new THREE.Color(params.waveColor);
-    },
-  })
+  tl
+    //
+    .to(params, {
+      waveColor: "#4258ff",
+      onUpdate: () => {
+        waveMaterial.color = new THREE.Color(params.waveColor);
+      },
+      duration: 1.5,
+    })
     .to(
       params,
       {
@@ -198,6 +202,7 @@ async function init() {
         onUpdate: () => {
           scene.background = new THREE.Color(params.backgroundColor);
         },
+        duration: 1.5,
       },
       "<"
     )
@@ -208,7 +213,41 @@ async function init() {
         onUpdate: () => {
           scene.fog.color = new THREE.Color(params.fogColor);
         },
+        duration: 2.5,
       },
       "<"
-    );
+    )
+    // 🎥 카메라 무빙~
+    .to(camera.position, {
+      x: 100,
+      z: -50,
+      duration: 2,
+    })
+    // 🚢 3D Mesh zPosition 이동~
+    .to(ship.position, {
+      z: 150,
+    })
+    //
+    .to(camera.position, {
+      x: -50,
+      y: 25,
+      z: 100,
+      duration: 2,
+    }) //
+    .to(camera.position, {
+      x: 0,
+      y: 50,
+      z: 300,
+      duration: 2,
+    });
+
+  gsap.to(".title", {
+    opacity: 0,
+    scrollTrigger: {
+      trigger: ".wrapper",
+      scrub: true,
+      pin: true,
+      end: "+=1000", // 애니메니션이 트리거된 시점부터 1000px
+    },
+  });
 }
