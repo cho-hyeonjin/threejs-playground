@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 window.addEventListener("load", function () {
   init();
@@ -23,6 +24,20 @@ function init() {
   );
 
   camera.position.z = 5;
+
+  new OrbitControls(camera, renderer.domElement);
+
+  const geometry = new THREE.SphereGeometry();
+  const material = new THREE.PointsMaterial({
+    color: 0xccaaff,
+    // wireframe: true,
+    size: 0.01,
+    sizeAttenuation: false,
+  });
+
+  const points = new THREE.Points(geometry, material);
+
+  scene.add(points);
 
   render();
 
