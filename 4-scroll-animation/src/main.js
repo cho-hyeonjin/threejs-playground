@@ -13,9 +13,13 @@ async function init() {
 
   const params = {
     waveColor: "#00ffff",
+    backgroundColor: "#ffffff",
+    fogColor: "#f0f0f0",
   };
 
   const gui = new GUI();
+
+  gui.hide();
 
   const canvas = document.querySelector("#canvas");
 
@@ -171,15 +175,40 @@ async function init() {
 
   window.addEventListener("resize", handleResize);
 
-  // 이렇게 하면 waveMaterial 색이 변하지 않고 검정색으로 바뀌어버림. 왜?
-  gsap.to(waveMaterial, {
-    color: "#4268ff", // Three.js에서 Material의 color값은 이렇게 문자열 HEX코드로 직접 할당하는게 불가능! → THREE.Color 클래스의 인스턴스로 변환해서 할당해줘야 함.
+  /** 시간차를 두고 변경되게 하고 싶다면? → gsap.timeline */
+  const tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: ".wrapper",
+      start: "top top",
+      markers: true,
+      scrub: true,
+    },
   });
 
-  gsap.to(params, {
+  tl.to(params, {
     waveColor: "#4258ff",
     onUpdate: () => {
       waveMaterial.color = new THREE.Color(params.waveColor);
     },
-  });
+  })
+    .to(
+      params,
+      {
+        backgroundColor: "#2a2a2a",
+        onUpdate: () => {
+          scene.background = new THREE.Color(params.backgroundColor);
+        },
+      },
+      "<"
+    )
+    .to(
+      params,
+      {
+        fogColor: "#2f2f2f",
+        onUpdate: () => {
+          scene.fog.color = new THREE.Color(params.fogColor);
+        },
+      },
+      "<"
+    );
 }
