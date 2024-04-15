@@ -63,26 +63,44 @@ function init() {
 
   /** 큐브맵 텍스처를 이용한 3차원 공간 표현 - 2 */
 
-  new OrbitControls(camera, renderer.domElement);
+  // new OrbitControls(camera, renderer.domElement);
 
-  const cubeTextureLoader = new THREE.CubeTextureLoader().setPath(
-    "assets/texture/Yokohama/"
+  // const cubeTextureLoader = new THREE.CubeTextureLoader().setPath(
+  //   "assets/texture/Yokohama/"
+  // );
+
+  // const images = [
+  //   // x, y, z: 축
+  //   // pos / neg: 방향(양, 음)
+  //   "posx.jpg",
+  //   "negx.jpg",
+  //   "posy.jpg",
+  //   "negy.jpg",
+  //   "posz.jpg",
+  //   "negz.jpg",
+  // ];
+
+  // const cubeTexture = cubeTextureLoader.load(images);
+
+  // scene.background = cubeTexture;
+
+  /** 360 파노라마 텍스처를 이용한 3차원 공간 구현 */
+  const controls = new OrbitControls(camera, renderer.domElement);
+
+  controls.enableZoom = false;
+  controls.enableDamping = true;
+  controls.autoRotate = true;
+  controls.autoRotateSpees = 0.5;
+
+  const textureLoader = new THREE.TextureLoader();
+
+  const texture = textureLoader.load(
+    "assets/texture/Village/night_village.jpeg"
   );
 
-  const images = [
-    // x, y, z: 축
-    // pos / neg: 방향(양, 음)
-    "posx.jpg",
-    "negx.jpg",
-    "posy.jpg",
-    "negy.jpg",
-    "posz.jpg",
-    "negz.jpg",
-  ];
+  texture.mapping = THREE.EquirectangularReflectionMapping;
 
-  const cubeTexture = cubeTextureLoader.load(images);
-
-  scene.background = cubeTexture;
+  scene.background = texture;
 
   render();
 
