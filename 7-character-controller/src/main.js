@@ -136,6 +136,9 @@ async function init() {
     currentAction.play();
   }
 
+  const raycaster = new THREE.Raycaster();
+  const pointer = new THREE.Vector2(); // mouse로 click한 지점의 정보를 2차원 vector로 표현할 변수
+
   const clock = new THREE.Clock();
 
   render();
@@ -163,4 +166,23 @@ async function init() {
   }
 
   window.addEventListener("resize", handleResize);
+
+  function handlePointerDown(event) {
+    pointer.x = (event.clientX / window.innerWidth - 0.5) * 2;
+    pointer.y = -(event.clientY / window.innerHeight - 0.5) * 2;
+
+    // 공간상에서 직사광선을 설정하기 위해서는 서로 다른 두 개의 점이 필요한데, 하나는 유저가 클릭한 지점, 다른 하나는 카메라가 위치한 점이여서 이름이 setFromCamera
+    raycaster.setFromCamera(pointer, camera);
+
+    // 광선과 연결된 Object 정보 얻기
+    const intersects = raycaster.intersectObjects(scene.children);
+
+    const object = intersects[0]?.object;
+
+    if (object?.name === "Ch46") {
+      object.material.color.set(0xff6ec7);
+    }
+  }
+
+  window.addEventListener("pointerdown", handlePointerDown);
 }
