@@ -55,6 +55,8 @@ async function init() {
 
   const gltf = await gltfLoader.loadAsync("models/character.gltf");
 
+  console.log(gltf);
+
   const model = gltf.scene;
 
   model.scale.set(0.1, 0.1, 0.1);
@@ -101,13 +103,27 @@ async function init() {
   spotLight.shadow.mapSize.height = 1024;
   spotLight.shadow.radius = 8;
 
-  console.log(spotLight.shadow);
-
   scene.add(spotLight);
+
+  const mixer = new THREE.AnimationMixer(model);
+
+  const hasAnimation = gltf.animations.lenght !== 0;
+
+  if (hasAnimation) {
+    const action = mixer.clipAction(gltf.animations[0]);
+
+    action.play();
+  }
+
+  const clock = new THREE.Clock();
 
   render();
 
   function render() {
+    const delta = clock.getDelta();
+
+    mixer.update(delta);
+
     controls.update();
 
     renderer.render(scene, camera);
