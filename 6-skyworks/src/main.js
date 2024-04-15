@@ -108,7 +108,6 @@ function init() {
   const sphereGeometry = new THREE.SphereGeometry(30);
   const sphereMaterial = new THREE.MeshBasicMaterial({
     envMap: texture,
-    // reflectivity
   });
 
   const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
