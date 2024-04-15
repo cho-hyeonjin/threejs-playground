@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 window.addEventListener("load", function () {
   init();
@@ -19,10 +20,45 @@ function init() {
     75,
     window.innerWidth / window.innerHeight,
     1,
-    500
+    10000
   );
 
   camera.position.z = 5;
+
+  const control = new OrbitControls(camera, renderer.domElement);
+
+  control.minDistance = 5;
+  control.maxDistance = 100;
+
+  new OrbitControls(camera, renderer.domElement);
+
+  const textureLoader = new THREE.TextureLoader().setPath(
+    "assets/texture/Yokohama/"
+  );
+
+  const images = [
+    // x, y, z: 축
+    // pos / neg: 방향(양, 음)
+    "posx.jpg",
+    "negx.jpg",
+    "posy.jpg",
+    "negy.jpg",
+    "posz.jpg",
+    "negz.jpg",
+  ];
+
+  const geometry = new THREE.BoxGeometry(5000, 5000, 5000);
+  const materials = images.map(
+    (image) =>
+      new THREE.MeshBasicMaterial({
+        map: textureLoader.load(image),
+        side: THREE.BackSide,
+      })
+  );
+
+  const skybox = new THREE.Mesh(geometry, materials);
+
+  scene.add(skybox);
 
   render();
 
