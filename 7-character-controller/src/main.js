@@ -111,6 +111,8 @@ async function init() {
 
   const combatAnimations = gltf.animations.slice(0, 5);
 
+  const dancingAnimations = gltf.animations.slice(5);
+
   combatAnimations.forEach((animation) => {
     const button = document.createElement("button");
 
@@ -180,7 +182,31 @@ async function init() {
     const object = intersects[0]?.object;
 
     if (object?.name === "Ch46") {
-      object.material.color.set(0xff6ec7);
+      const previousAction = currentAction;
+
+      // 랜덤 댄싱을 위한 인덱스 랜덤 뽑기
+      const index = Math.round(Math.random() * (dancingAnimations.length - 1));
+
+      currentAction = mixer.clipAction(dancingAnimations[index]);
+      currentAction.clampWhenFinished = true;
+
+      currentAction.loop = THREE.LoopOnce; // 애니메이션 한 번만 재생되도독 설정
+
+      if (previousAction !== currentAction) {
+        previousAction.fadeOut(0.5);
+        currentAction.reset().fadeIn(0.5).play();
+      }
+
+      mixer.addEventListener("finished", handleFinished);
+
+      function handleFinished() {
+        const previousAction = currentAction;
+
+        currentAction = mixer.clipAction(combatAnimations[0]);
+
+        previousAction.fadeOut(0.5);
+        currentAction.reset().fadeIn(0.5).play();
+      }
     }
   }
 
