@@ -55,8 +55,6 @@ async function init() {
 
   const gltf = await gltfLoader.loadAsync("models/character.gltf");
 
-  console.log(gltf);
-
   const model = gltf.scene;
 
   model.scale.set(0.1, 0.1, 0.1);
@@ -107,12 +105,35 @@ async function init() {
 
   const mixer = new THREE.AnimationMixer(model);
 
+  const buttons = document.querySelector(".actions");
+
+  let currentAction;
+
+  const combatAnimations = gltf.animations.slice(0, 5);
+
+  combatAnimations.forEach((animation) => {
+    const button = document.createElement("button");
+
+    button.innerText = animation.name;
+    buttons.appendChild(button);
+    button.addEventListener("click", () => {
+      const previousAction = currentAction;
+
+      currentAction = mixer.clipAction(animation);
+
+      if (previousAction !== currentAction) {
+        previousAction.fadeOut(0.5);
+        currentAction.reset().fadeIn(0.5).play();
+      }
+    });
+  });
+
   const hasAnimation = gltf.animations.lenght !== 0;
 
   if (hasAnimation) {
-    const action = mixer.clipAction(gltf.animations[0]);
+    currentAction = mixer.clipAction(gltf.animations[0]);
 
-    action.play();
+    currentAction.play();
   }
 
   const clock = new THREE.Clock();
